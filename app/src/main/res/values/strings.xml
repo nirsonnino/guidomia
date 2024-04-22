@@ -1,3 +1,14 @@
 <resources>
     <string name="app_name">GUIDOMIA</string>
+
+    <string name="header_tacoma">Tacoma 2021</string>
+    <string name="header_get_yours_now">Get yours now</string>
+
+    <string name="label_filters">Filters</string>
+    <string name="label_price">Price: </string>
+    <string name="label_pros">Pros:</string>
+    <string name="label_cons">Cons:</string>
+
+    <string name="filter_any_make">Any make</string>
+    <string name="filter_any_model">Any model</string>
 </resources>

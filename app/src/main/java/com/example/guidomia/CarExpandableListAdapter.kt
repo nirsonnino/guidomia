@@ -21,7 +21,6 @@ class CarExpandableListAdapter(
 ) : RecyclerView.Adapter<CarExpandableListAdapter.CarViewHolder>(), Filterable {
 
     private var expandedPosition: Int = 0
-
     private var filteredCars: List<Car> = cars.toList()
 
     inner class CarViewHolder(val binding: ItemCarCollapsedBinding) : RecyclerView.ViewHolder(binding.root)
@@ -46,7 +45,7 @@ class CarExpandableListAdapter(
             })
 
             tvCarName.text = car.make
-            tvCarPrice.text = "$LABEL_PRICE${formatAmount(car.marketPrice)}"
+            tvCarPrice.text = "${context.getString(R.string.label_price)}${formatAmount(car.marketPrice)}"
 
             displayStarRating(car.rating, starContainer)
 
@@ -154,7 +153,5 @@ class CarExpandableListAdapter(
         const val ALPINE = "Alpine"
         const val BMW = "BMW"
         const val MERCEDES_BENZ = "Mercedes Benz"
-
-        const val LABEL_PRICE = "Price: "
     }
 }
