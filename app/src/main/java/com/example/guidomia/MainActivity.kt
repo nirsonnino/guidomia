@@ -22,7 +22,7 @@ class MainActivity : AppCompatActivity() {
         with(binding) {
             rvCarList.apply {
                 layoutManager = LinearLayoutManager(this@MainActivity)
-                adapter = CarExpandableListAdapter(this@MainActivity, carList)
+                adapter = CarExpandableListAdapter(this@MainActivity, carList, this)
                 setHasFixedSize(true)
             }
         }

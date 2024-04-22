@@ -10,11 +10,15 @@ import android.widget.LinearLayout
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.example.guidomia.databinding.ItemCarCollapsedBinding
+import com.example.guidomia.databinding.ItemCustomBulletListBinding
 
 class CarExpandableListAdapter(
     private val context: Context,
-    private val cars: List<Car>
+    private val cars: List<Car>,
+    private val recyclerView: RecyclerView
 ) : RecyclerView.Adapter<CarExpandableListAdapter.CarViewHolder>() {
+
+    private var expandedPosition: Int = 0
 
     inner class CarViewHolder(val binding: ItemCarCollapsedBinding) : RecyclerView.ViewHolder(binding.root)
 
@@ -42,18 +46,29 @@ class CarExpandableListAdapter(
 
             displayStarRating(car.rating, starContainer)
 
-            line.visibility = if (position == itemCount - 1) View.GONE else View.VISIBLE
+            val isExpanded = position == expandedPosition
+            expandedContainer.visibility = if (isExpanded) View.VISIBLE else View.GONE
 
             root.setOnClickListener {
-                car.isExpanded = !car.isExpanded
-                notifyItemChanged(position)
+                val oldExpandedPosition = expandedPosition
+                expandedPosition = if (isExpanded) RecyclerView.NO_POSITION else holder.adapterPosition
+
+                // Notify item changes for old and new expanded positions
+                notifyItemChanged(oldExpandedPosition)
+                notifyItemChanged(expandedPosition)
+
+                // Scroll to the expanded item if it's partially or fully outside the visible area
+                if (!isExpanded) {
+                    recyclerView.smoothScrollToPosition(holder.adapterPosition)
+                }
             }
-        }
 
-        if (car.isExpanded) {
+            if (isExpanded) {
+                displayProsCons(prosContainer, car.prosList)
+                displayProsCons(consContainer, car.consList)
+            }
 
-        } else {
-
+            line.visibility = if (position == itemCount - 1) View.GONE else View.VISIBLE
         }
     }
 
@@ -88,6 +103,21 @@ class CarExpandableListAdapter(
             amount >= 1000000 -> "${(amount / 1000000).toInt()}m"
             amount >= 1000 -> "${(amount / 1000).toInt()}k"
             else -> amount.toString()
+        }
+    }
+
+    private fun displayProsCons(layout: LinearLayout, items: List<String>) {
+        layout.removeAllViews()
+        val bulletColor = ContextCompat.getColor(context, R.color.orange)
+        for (item in items) {
+            val itemBinding = ItemCustomBulletListBinding.inflate(LayoutInflater.from(context), layout, false)
+            with(itemBinding) {
+                if (item.isEmpty().not()) {
+                    tvDesc.text = item
+                    ivBullet.setColorFilter(bulletColor)
+                    layout.addView(root)
+                }
+            }
         }
     }
 
