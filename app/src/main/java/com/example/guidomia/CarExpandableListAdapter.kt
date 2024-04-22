@@ -5,6 +5,8 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Filter
+import android.widget.Filterable
 import android.widget.ImageView
 import android.widget.LinearLayout
 import androidx.core.content.ContextCompat
@@ -16,9 +18,11 @@ class CarExpandableListAdapter(
     private val context: Context,
     private val cars: List<Car>,
     private val recyclerView: RecyclerView
-) : RecyclerView.Adapter<CarExpandableListAdapter.CarViewHolder>() {
+) : RecyclerView.Adapter<CarExpandableListAdapter.CarViewHolder>(), Filterable {
 
     private var expandedPosition: Int = 0
+
+    private var filteredCars: List<Car> = cars.toList()
 
     inner class CarViewHolder(val binding: ItemCarCollapsedBinding) : RecyclerView.ViewHolder(binding.root)
 
@@ -29,7 +33,7 @@ class CarExpandableListAdapter(
 
     @SuppressLint("SetTextI18n")
     override fun onBindViewHolder(holder: CarViewHolder, position: Int) {
-        val car = cars[position]
+        val car = filteredCars[position]
         val binding = holder.binding
 
         with(binding) {
@@ -72,7 +76,7 @@ class CarExpandableListAdapter(
         }
     }
 
-    override fun getItemCount(): Int = cars.size
+    override fun getItemCount(): Int = filteredCars.size
 
     private fun displayStarRating(rating: Int, starsContainer: ViewGroup) {
         starsContainer.removeAllViews()
@@ -117,6 +121,30 @@ class CarExpandableListAdapter(
                     ivBullet.setColorFilter(bulletColor)
                     layout.addView(root)
                 }
+            }
+        }
+    }
+
+    override fun getFilter(): Filter {
+        return object : Filter() {
+            override fun performFiltering(constraint: CharSequence?): FilterResults {
+                val results = FilterResults()
+                if (constraint.isNullOrEmpty()) {
+                    results.values = cars.toList()
+                } else {
+                    val filteredList = cars.filter { car ->
+                        car.make.equals(constraint.toString(), ignoreCase = true) ||
+                                car.model.equals(constraint.toString(), ignoreCase = true)
+                    }
+                    results.values = filteredList.takeIf { it.isNotEmpty() } ?: cars.toList()
+                }
+                return results
+            }
+
+            @SuppressLint("NotifyDataSetChanged")
+            override fun publishResults(constraint: CharSequence?, results: FilterResults?) {
+                filteredCars = results?.values as? List<Car> ?: emptyList()
+                notifyDataSetChanged()
             }
         }
     }
